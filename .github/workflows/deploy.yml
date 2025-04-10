@@ -1,0 +1,78 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloner le code
+        uses: actions/checkout@v3
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Installer les dépendances
+        run: npm install
+
+    #   - name: Exécuter les tests
+    #     run: npm test
+
+  deploy:
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déployer sur Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+          vercel-args: '--prod'
+
+
+#           name : CI/CD Pipeline
+
+# on:
+#     push:
+#         branches:
+#             -main
+
+# jobs:
+#     BUILD_AND_DEPLOY:
+#         runs-on: ubuntu-latest
+#         steps: 
+#             - name: cloner le code
+#               uses: actions/checkout@v3
+
+#             - name: Installer les dépendances
+#               uses: actions/setup-node@v3
+#               with:
+#                 node-version: '22'
+
+#             - name: Installer les dépendances
+#               run: npm install
+
+#             - name: Exécuter les tests
+#               run: npm test
+
+            # - name: Déploiement via SSH sur VPS
+            #   uses: appleboy/ssh-action@main
+            #   with: 
+            #     host: ${{ secrets.SSH_HOST}}
+            #     username: ${{ secrets.SSH_USERNAME}}
+            #     key: ${{ secrets.SSH_PRIVATE_KEY}}
+            #     port: ${{ secrets.SSH_PORT}}
+            #     script: |
+            #         cd ~/workflows ||mkdir ~/workflows && cd ~/workflows
+            #         git clone https://github.com/${{ github.repository }} . || git pull
+            #         npm install
+            #         pm2 delete my-api || true
+            #         pm2 start index.js --name "my-api"
+            #         pm2 save
+            #         pm2 list
